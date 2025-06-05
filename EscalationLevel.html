@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f5f5f5;
+        margin: 0;
+      }
+      .container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      h2 {
+        color: #006064;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .option-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: all 0.3s;
+        background-color: #fafafa;
+      }
+      .option-card:hover {
+        border-color: #00ACC1;
+        background-color: #E0F7FA;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+      .option-card.selected {
+        border-color: #00ACC1;
+        background-color: #E0F7FA;
+      }
+      .option-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #006064;
+        margin-bottom: 8px;
+      }
+      .option-desc {
+        color: #666;
+        font-size: 14px;
+      }
+      .status-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
+        font-size: 12px;
+        flex-wrap: wrap;
+      }
+      .status-box {
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin: 2px 5px;
+        text-align: center;
+        min-width: 120px;
+      }
+      .from-status {
+        background-color: #FFE0B2;
+        color: #E65100;
+      }
+      .to-status {
+        background-color: #C8E6C9;
+        color: #2E7D32;
+      }
+      .arrow {
+        color: #999;
+        margin: 0 5px;
+        font-weight: bold;
+      }
+      .button-container {
+        margin-top: 30px;
+        text-align: center;
+      }
+      button {
+        padding: 12px 30px;
+        margin: 0 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .btn-primary {
+        background-color: #00ACC1;
+        color: white;
+      }
+      .btn-primary:hover {
+        background-color: #00838F;
+      }
+      .btn-primary:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      .btn-secondary {
+        background-color: #e0e0e0;
+        color: #333;
+      }
+      .btn-secondary:hover {
+        background-color: #bdbdbd;
+      }
+      
+      /* Step-by-step Modal Styles */
+      .step-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+      }
+      .step-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 30px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      }
+      .step-title {
+        color: #006064;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .step-description {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 30px;
+      }
+      .type-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      .type-btn {
+        padding: 15px 25px;
+        border: 2px solid #00ACC1;
+        border-radius: 8px;
+        background-color: white;
+        color: #00ACC1;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .type-btn:hover {
+        background-color: #00ACC1;
+        color: white;
+      }
+      .date-input-container {
+        margin: 20px 0;
+      }
+      .date-input {
+        padding: 12px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        width: 200px;
+        text-align: center;
+      }
+      .date-input:focus {
+        outline: none;
+        border-color: #00ACC1;
+      }
+      
+      /* Progress Modal Styles */
+      .progress-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+      }
+      .progress-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 30px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 600px;
+        max-height: 85vh;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        overflow-y: auto;
+        position: relative;
+      }
+      .progress-title {
+        color: #006064;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .progress-bar-container {
+        width: 100%;
+        height: 20px;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #00ACC1, #00838F);
+        width: 0%;
+        transition: width 0.5s ease;
+        border-radius: 10px;
+      }
+      .progress-percentage {
+        font-size: 18px;
+        font-weight: bold;
+        color: #006064;
+        margin: 10px 0;
+      }
+      .progress-message {
+        color: #666;
+        font-size: 16px;
+        margin: 15px 0;
+        min-height: 24px;
+      }
+      .progress-details {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        font-size: 14px;
+        color: #555;
+        text-align: left;
+      }
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #00ACC1;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .success-icon {
+        color: #4CAF50;
+        font-size: 48px;
+        margin: 20px 0;
+      }
+      .error-icon {
+        color: #f44336;
+        font-size: 48px;
+        margin: 20px 0;
+      }
+      .results-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 25px;
+        border-radius: 12px;
+        margin: 20px 0;
+        text-align: left;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: 1px solid #dee2e6;
+      }
+      .result-section {
+        margin: 20px 0;
+        padding: 18px;
+        border-left: 4px solid #00ACC1;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .result-title {
+        font-weight: bold;
+        color: #006064;
+        margin-bottom: 12px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .result-stats {
+        font-size: 14px;
+        color: #495057;
+        line-height: 1.6;
+      }
+      .stat-line {
+        margin: 6px 0;
+        padding: 4px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .stat-label {
+        color: #6c757d;
+      }
+      .stat-value {
+        font-weight: bold;
+        color: #00ACC1;
+        background-color: #e3f2fd;
+        padding: 2px 8px;
+        border-radius: 4px;
+        min-width: 30px;
+        text-align: center;
+      }
+      .summary-header {
+        background: linear-gradient(135deg, #00ACC1 0%, #00838F 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 8px 8px 0 0;
+        margin: -25px -25px 20px -25px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+      }
+      .processing-time {
+        background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+        color: white;
+        padding: 10px;
+        border-radius: 6px;
+        text-align: center;
+        margin: 15px 0;
+        font-weight: bold;
+      }
+      .time-estimate {
+        background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 20px 0;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Step 1: Escalation Level Selection -->
+    <div class="container" id="mainContainer">
+      <h2>🚀 Select Escalation Level</h2>
+      
+      <div class="option-card" onclick="selectOption('new')" id="new-option">
+        <div class="option-title">📋 New Escalations</div>
+        <div class="option-desc">Process NPIs that need their first escalation</div>
+        <div class="status-flow">
+          <span class="status-box from-status">TO BE ESCALATED TO PR</span>
+          <span class="arrow">→</span>
+          <span class="status-box to-status">FIRST ESCALATION</span>
+        </div>
+      </div>
+      
+      <div class="option-card" onclick="selectOption('second')" id="second-option">
+        <div class="option-title">🔄 Second Escalations</div>
+        <div class="option-desc">Process NPIs that didn't respond to first escalation</div>
+        <div class="status-flow">
+          <span class="status-box from-status">FIRST ESCALATION TO RP</span>
+          <span class="arrow">→</span>
+          <span class="status-box from-status">TO BE ESCALATED TO PR #2</span>
+          <span class="arrow">→</span>
+          <span class="status-box to-status">SECOND ESCALATION TO PR</span>
+        </div>
+      </div>
+      
+      <div class="option-card" onclick="selectOption('final')" id="final-option">
+        <div class="option-title">⚠️ Final Escalations</div>
+        <div class="option-desc">Process NPIs that didn't respond to second escalation</div>
+        <div class="status-flow">
+          <span class="status-box from-status">SECOND ESCALATION TO PR</span>
+          <span class="arrow">→</span>
+          <span class="status-box from-status">TO BE ESCALATED TO PR #3</span>
+          <span class="arrow">→</span>
+          <span class="status-box to-status">FINAL ESCALATION</span>
+        </div>
+      </div>
+      
+      <div class="button-container">
+        <button class="btn-primary" id="continueBtn" onclick="continueToTypeSelection()" disabled>
+          Continue
+        </button>
+        <button class="btn-secondary" onclick="google.script.host.close()">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Type Selection Modal -->
+    <div id="typeModal" class="step-modal">
+      <div class="step-content">
+        <div class="step-title">🌊 Select Escalation Type</div>
+        <div class="step-description">Please select the type of escalation to process:</div>
+        <div class="type-buttons">
+          <button class="type-btn" onclick="selectType('malpractice')">📊 MALPRACTICE 2025</button>
+          <button class="type-btn" onclick="selectType('expirables')">📋 EXPIRABLES 2025</button>
+          <button class="type-btn" onclick="selectType('both')">🔄 Both Types</button>
+        </div>
+        <div class="button-container" style="margin-top: 30px;">
+          <button class="btn-secondary" onclick="closeTypeModal()">Back</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Date Input Modal -->
+    <div id="dateModal" class="step-modal">
+      <div class="step-content">
+        <div class="step-title">📅 Enter Processing Date</div>
+        <div class="step-description">Please enter the date to process in YYYY/MM/DD format:</div>
+        <div class="date-input-container">
+          <input type="text" class="date-input" id="dateInput" placeholder="2025/05/19" 
+                 pattern="\d{4}/\d{2}/\d{2}" maxlength="10">
+        </div>
+        <div class="button-container">
+          <button class="btn-primary" onclick="startProcessing()">Start Processing</button>
+          <button class="btn-secondary" onclick="closeDateModal()">Back</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Progress Modal -->
+    <div id="progressModal" class="progress-modal">
+      <div class="progress-content">
+        <div class="progress-title">Processing Escalations</div>
+        <div class="time-estimate" id="timeEstimate">
+          ⏳ This process may take 2-4 minutes depending on data volume
+        </div>
+        <div class="spinner" id="spinner"></div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-percentage" id="progressPercentage">0%</div>
+        <div class="progress-message" id="progressMessage">Initializing...</div>
+        <div class="progress-details" id="progressDetails">
+          Starting escalation process...
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      let selectedOption = null;
+      let selectedType = null;
+      let isProcessing = false;
+      
+      // Function to select escalation option
+      function selectOption(option) {
+        if (isProcessing) return;
+        
+        console.log('Option selected:', option); // Debug log
+        
+        // Remove previous selection
+        document.querySelectorAll('.option-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        
+        // Add selection to clicked card
+        const selectedCard = document.getElementById(option + '-option');
+        if (selectedCard) {
+          selectedCard.classList.add('selected');
+          selectedOption = option;
+          
+          // Enable continue button
+          const continueBtn = document.getElementById('continueBtn');
+          if (continueBtn) {
+            continueBtn.disabled = false;
+          }
+          
+          console.log('Option set to:', selectedOption); // Debug log
+        }
+      }
+      
+      function continueToTypeSelection() {
+        console.log('Continue clicked, selectedOption:', selectedOption); // Debug log
+        
+        if (!selectedOption || isProcessing) {
+          console.log('Cannot continue - no option selected or processing'); // Debug log
+          return;
+        }
+        
+        // Show type selection modal
+        document.getElementById('typeModal').style.display = 'block';
+      }
+      
+      function selectType(type) {
+        console.log('Type selected:', type); // Debug log
+        selectedType = type;
+        closeTypeModal();
+        
+        // Show date input modal
+        document.getElementById('dateModal').style.display = 'block';
+        
+        // Focus on date input after a short delay
+        setTimeout(() => {
+          const dateInput = document.getElementById('dateInput');
+          if (dateInput) {
+            dateInput.focus();
+          }
+        }, 100);
+      }
+      
+      function closeTypeModal() {
+        document.getElementById('typeModal').style.display = 'none';
+      }
+      
+      function closeDateModal() {
+        document.getElementById('dateModal').style.display = 'none';
+        // Show type modal again
+        document.getElementById('typeModal').style.display = 'block';
+      }
+      
+      function startProcessing() {
+        const dateInput = document.getElementById('dateInput').value.trim();
+        
+        console.log('Starting processing with:', { // Debug log
+          selectedOption,
+          selectedType,
+          dateInput
+        });
+        
+        // Validate date format
+        const dateRegex = /^\d{4}\/\d{2}\/\d{2}$/;
+        if (!dateInput || !dateRegex.test(dateInput)) {
+          alert('Please enter a valid date in YYYY/MM/DD format (e.g., 2025/05/19)');
+          return;
+        }
+        
+        // Validate all selections
+        if (!selectedOption) {
+          alert('Please select an escalation level first');
+          return;
+        }
+        
+        if (!selectedType) {
+          alert('Please select an escalation type first');
+          return;
+        }
+        
+        isProcessing = true;
+        
+        // Close all previous modals
+        document.getElementById('dateModal').style.display = 'none';
+        document.getElementById('typeModal').style.display = 'none';
+        document.getElementById('mainContainer').style.display = 'none';
+        
+        // Show progress modal
+        showProgressModal();
+        
+        // Start realistic progress simulation
+        startRealisticProgress();
+        
+        // Call the Google Apps Script function
+        console.log('Calling Google Apps Script function...'); // Debug log
+        
+        google.script.run
+          .withSuccessHandler(onProcessSuccess)
+          .withFailureHandler(onProcessError)
+          .processEscalationsWithLevelAndParams(selectedOption, selectedType, dateInput);
+      }
+      
+      function startRealisticProgress() {
+        const progressSteps = [
+          { percent: 5, message: 'Validating escalation parameters...', details: `Processing ${selectedOption} escalation for ${selectedType}`, delay: 500 },
+          { percent: 15, message: 'Loading spreadsheet data...', details: 'Accessing MALPRACTICE and EXPIRABLES sheets...', delay: 2000 },
+          { percent: 25, message: 'Preparing ESCALATION CENTER...', details: 'Creating or clearing existing data...', delay: 1500 },
+          { percent: 40, message: 'Searching for NPIs...', details: 'Filtering by week and escalation status...', delay: 3000 },
+          { percent: 55, message: 'Loading IPAS database...', details: 'Processing facility relationships...', delay: 2500 },
+          { percent: 75, message: 'Processing NPIs and analyzing IPAs...', details: 'Determining escalation readiness...', delay: 4000 },
+          { percent: 90, message: 'Writing results to ESCALATION CENTER...', details: 'Formatting and organizing data...', delay: 2000 },
+          { percent: 95, message: 'Applying formatting...', details: 'Final visual enhancements...', delay: 1500 }
+        ];
+        
+        let currentStep = 0;
+        
+        function executeNextStep() {
+          if (currentStep < progressSteps.length && isProcessing) {
+            const step = progressSteps[currentStep];
+            updateProgress(step.percent, step.message, step.details);
+            currentStep++;
+            
+            setTimeout(executeNextStep, step.delay);
+          }
+        }
+        
+        // Start with initial message
+        updateProgress(0, 'Initializing escalation process...', `Selected: ${selectedOption} escalation for ${selectedType}`);
+        setTimeout(executeNextStep, 500);
+      }
+      
+      function showProgressModal() {
+        document.getElementById('progressModal').style.display = 'block';
+        document.getElementById('spinner').style.display = 'block';
+        // Clear any previous icons
+        document.querySelector('.success-icon')?.remove();
+        document.querySelector('.error-icon')?.remove();
+      }
+      
+      function updateProgress(percentage, message, details) {
+        document.getElementById('progressBar').style.width = percentage + '%';
+        document.getElementById('progressPercentage').textContent = percentage + '%';
+        document.getElementById('progressMessage').textContent = message;
+        if (details) {
+          document.getElementById('progressDetails').textContent = details;
+        }
+      }
+      
+      function onProcessSuccess(result) {
+        // Hide spinner and time estimate, show success
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('timeEstimate').style.display = 'none';
+        
+        // Add success icon
+        const successIcon = document.createElement('div');
+        successIcon.className = 'success-icon';
+        successIcon.textContent = '✅';
+        document.querySelector('.progress-content').insertBefore(successIcon, document.getElementById('progressBar').parentNode);
+        
+        // Show final success state
+        updateProgress(100, 'Process completed successfully!', 'All data has been processed and written to ESCALATION CENTER.');
+        
+        document.querySelector('.progress-title').textContent = 'Success!';
+        
+        // Add detailed results
+        const resultsContainer = document.createElement('div');
+        resultsContainer.className = 'results-container';
+        resultsContainer.innerHTML = createResultsHTML(result);
+        document.querySelector('.progress-content').appendChild(resultsContainer);
+        
+        // Add close button
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'btn-primary';
+        closeBtn.textContent = 'View Results';
+        closeBtn.onclick = () => google.script.host.close();
+        closeBtn.style.marginTop = '20px';
+        document.querySelector('.progress-content').appendChild(closeBtn);
+        
+        // Scroll to top to ensure user sees the success message
+        document.querySelector('.progress-content').scrollTop = 0;
+      }
+      
+      function onProcessError(error) {
+        // Hide spinner, time estimate and show error
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('timeEstimate').style.display = 'none';
+        
+        // Add error icon
+        const errorIcon = document.createElement('div');
+        errorIcon.className = 'error-icon';
+        errorIcon.textContent = '❌';
+        document.querySelector('.progress-content').insertBefore(errorIcon, document.getElementById('progressBar').parentNode);
+        
+        // Show error details
+        const errorDetails = `
+          <div class="result-section" style="border-left: 4px solid #f44336;">
+            <div class="result-title" style="color: #c62828;">❌ Error Details</div>
+            <div class="result-stats">
+              <div class="stat-line">
+                <span class="stat-label">Error type:</span>
+                <span class="stat-value" style="background-color: #ffebee; color: #c62828;">${error.name || 'Unknown'}</span>
+              </div>
+              <div class="stat-line">
+                <span class="stat-label">Error message:</span>
+                <span style="color: #d32f2f; font-weight: bold;">${error.message || 'No details available'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        updateProgress(0, 'Processing failed', 'An error occurred during the escalation process');
+        
+        document.querySelector('.progress-title').textContent = 'Processing Error';
+        document.querySelector('.progress-title').style.color = '#f44336';
+        
+        // Add error details to progress modal
+        const errorContainer = document.createElement('div');
+        errorContainer.className = 'results-container';
+        errorContainer.innerHTML = errorDetails;
+        document.querySelector('.progress-content').appendChild(errorContainer);
+        
+        // Add close and retry buttons
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.marginTop = '20px';
+        buttonContainer.style.textAlign = 'center';
+        
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'btn-primary';
+        retryBtn.textContent = 'Try Again';
+        retryBtn.style.marginRight = '10px';
+        retryBtn.onclick = () => {
+          isProcessing = false;
+          document.getElementById('progressModal').style.display = 'none';
+          document.getElementById('mainContainer').style.display = 'block';
+          // Reset state
+          selectedOption = null;
+          selectedType = null;
+          document.getElementById('continueBtn').disabled = true;
+          document.querySelectorAll('.option-card').forEach(card => {
+            card.classList.remove('selected');
+          });
+        };
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'btn-secondary';
+        closeBtn.textContent = 'Close';
+        closeBtn.onclick = () => google.script.host.close();
+        
+        buttonContainer.appendChild(retryBtn);
+        buttonContainer.appendChild(closeBtn);
+        document.querySelector('.progress-content').appendChild(buttonContainer);
+        
+        // Scroll to top to ensure user sees the error message
+        document.querySelector('.progress-content').scrollTop = 0;
+      }
+      
+  function createResultsHTML(result) {
+    let html = `
+      <div class="summary-header">
+        📊 Processing Complete
+      </div>
+      <div class="processing-time">
+        ⏱️ Completed in ${result.duration} seconds
+      </div>
+      
+      <div class="result-section">
+        <div class="result-title">📋 Processing Details</div>
+        <div class="result-stats">
+          <div class="stat-line">
+            <span class="stat-label">📅 Date processed:</span>
+            <span class="stat-value">${result.dateProcessed}</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">📊 Week format:</span>
+            <span class="stat-value">${result.weekFormat}</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">🚀 Escalation level:</span>
+            <span class="stat-value">${result.escalationLevel}</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">📋 Types processed:</span>
+            <span class="stat-value">${result.types}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    if (result.results.malpractice.count > 0) {
+      html += `
+        <div class="result-section">
+          <div class="result-title">📊 MALPRACTICE Results</div>
+          <div class="result-stats">
+            <div class="stat-line">
+              <span class="stat-label">Total processed:</span>
+              <span class="stat-value">${result.results.malpractice.count}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🟢 Ready to escalate:</span>
+              <span class="stat-value" style="background-color: #c8e6c9; color: #2e7d32;">${result.results.malpractice.readyToEscalate}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🟡 Requires review:</span>
+              <span class="stat-value" style="background-color: #fff3e0; color: #e65100;">${result.results.malpractice.requiresReview}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🟠 Missing PR contact:</span>
+              <span class="stat-value" style="background-color: #ffe0b2; color: #ef6c00;">${result.results.malpractice.missingPRContact}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🔴 Not affiliated:</span>
+              <span class="stat-value" style="background-color: #ffebee; color: #c62828;">${result.results.malpractice.notAffiliated}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🟠 Astrana inactive:</span>
+              <span class="stat-value" style="background-color: #ffe0b2; color: #ef6c00;">${result.results.malpractice.astranaInactive}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🔴 No active IPAs:</span>
+              <span class="stat-value" style="background-color: #ffebee; color: #c62828;">${result.results.malpractice.noActiveIPAs}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">⚫ Not found in DB:</span>
+              <span class="stat-value" style="background-color: #f5f5f5; color: #757575;">${result.results.malpractice.notFound}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    if (result.results.expirables.count > 0) {
+      html += `
+        <div class="result-section">
+          <div class="result-title">📋 EXPIRABLES Results</div>
+          <div class="result-stats">
+            <div class="stat-line">
+              <span class="stat-label">Total processed:</span>
+              <span class="stat-value">${result.results.expirables.count}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🟢 Ready to escalate:</span>
+              <span class="stat-value" style="background-color: #c8e6c9; color: #2e7d32;">${result.results.expirables.readyToEscalate}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🟡 Requires review:</span>
+              <span class="stat-value" style="background-color: #fff3e0; color: #e65100;">${result.results.expirables.requiresReview}</span>
+            </div>
+           <div class="stat-line">
+              <span class="stat-label">🟠 Missing PR contact:</span>
+              <span class="stat-value" style="background-color: #ffe0b2; color: #ef6c00;">${result.results.expirables.missingPRContact}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🔴 Not affiliated:</span>
+              <span class="stat-value" style="background-color: #ffebee; color: #c62828;">${result.results.expirables.notAffiliated}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🟠 Astrana inactive:</span>
+              <span class="stat-value" style="background-color: #ffe0b2; color: #ef6c00;">${result.results.expirables.astranaInactive}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">🔴 No active IPAs:</span>
+              <span class="stat-value" style="background-color: #ffebee; color: #c62828;">${result.results.expirables.noActiveIPAs}</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">⚫ Not found in DB:</span>
+              <span class="stat-value" style="background-color: #f5f5f5; color: #757575;">${result.results.expirables.notFound}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    return html;
+  }
+      // Handle Enter key in date input
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('dateInput').addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            startProcessing();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
